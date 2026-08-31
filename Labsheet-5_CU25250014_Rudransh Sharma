@@ -1,0 +1,239 @@
+# LAB ASSIGNMENT 5: Expression Conversion & Evaluation
+
+## Q1. Design an algebraic translation program using a custom operator stack that accepts a valid string expression in Infix format and correctly converts it to Postfix format.
+
+### Python Program
+
+class Stack:
+    def __init__(self):
+        self.stack = []
+
+    def push(self, item):
+        self.stack.append(item)
+
+    def pop(self):
+        if not self.is_empty():
+            return self.stack.pop()
+
+    def peek(self):
+        if not self.is_empty():
+            return self.stack[-1]
+
+    def is_empty(self):
+        return len(self.stack) == 0
+
+
+def precedence(operator):
+    if operator == '^':
+        return 3
+    elif operator == '*' or operator == '/':
+        return 2
+    elif operator == '+' or operator == '-':
+        return 1
+    return 0
+
+
+def is_operand(ch):
+    return ch.isalnum()
+
+
+def infix_to_postfix(infix):
+    stack = Stack()
+    postfix = ""
+
+    for ch in infix:
+
+        if is_operand(ch):
+            postfix += ch
+
+        elif ch == '(':
+            stack.push(ch)
+
+        elif ch == ')':
+            while not stack.is_empty() and stack.peek() != '(':
+                postfix += stack.pop()
+
+            stack.pop()
+
+        else:
+            while (not stack.is_empty() and
+                   stack.peek() != '(' and
+                   precedence(stack.peek()) >= precedence(ch)):
+                postfix += stack.pop()
+
+            stack.push(ch)
+
+    while not stack.is_empty():
+        postfix += stack.pop()
+
+    return postfix
+
+
+infix = input("Enter Infix Expression: ")
+
+print("Postfix Expression:", infix_to_postfix(infix))
+
+## Q2. Write an Expression Evaluation program that processes a completed string in Postfix format, utilizing an integer stack to compute and print the final mathematical output.
+
+### Python Program
+
+class Stack:
+    def __init__(self):
+        self.stack = []
+
+    def push(self, item):
+        self.stack.append(item)
+
+    def pop(self):
+        if not self.is_empty():
+            return self.stack.pop()
+
+    def is_empty(self):
+        return len(self.stack) == 0
+
+
+def evaluate_postfix(postfix):
+    stack = Stack()
+
+    for ch in postfix:
+
+        if ch.isdigit():
+            stack.push(int(ch))
+
+        else:
+            b = stack.pop()
+            a = stack.pop()
+
+            if ch == '+':
+                result = a + b
+
+            elif ch == '-':
+                result = a - b
+
+            elif ch == '*':
+                result = a * b
+
+            elif ch == '/':
+                result = a // b
+
+            elif ch == '^':
+                result = a ** b
+
+            stack.push(result)
+
+    return stack.pop()
+
+
+postfix = input("Enter Postfix Expression: ")
+
+print("Result:", evaluate_postfix(postfix))
+
+
+### Q3. Implement a Binary Search Tree with insertion, deletion, and traversal operations (inorder, preorder, postorder).
+
+### Python Program
+
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.left = None
+        self.right = None
+
+
+class BST:
+
+    # Insert a node
+    def insert(self, root, data):
+        if root is None:
+            return Node(data)
+
+        if data < root.data:
+            root.left = self.insert(root.left, data)
+
+        elif data > root.data:
+            root.right = self.insert(root.right, data)
+
+        return root
+
+    # Find the minimum value node
+    def find_min(self, root):
+        current = root
+
+        while current.left is not None:
+            current = current.left
+
+        return current
+
+    # Delete a node
+    def delete(self, root, data):
+        if root is None:
+            return root
+
+        if data < root.data:
+            root.left = self.delete(root.left, data)
+
+        elif data > root.data:
+            root.right = self.delete(root.right, data)
+
+        else:
+            # Case 1 and 2: No child or one child
+            if root.left is None:
+                return root.right
+
+            elif root.right is None:
+                return root.left
+
+            # Case 3: Two children
+            temp = self.find_min(root.right)
+            root.data = temp.data
+            root.right = self.delete(root.right, temp.data)
+
+        return root
+
+    # Inorder Traversal
+    def inorder(self, root):
+        if root is not None:
+            self.inorder(root.left)
+            print(root.data, end=" ")
+            self.inorder(root.right)
+
+    # Preorder Traversal
+    def preorder(self, root):
+        if root is not None:
+            print(root.data, end=" ")
+            self.preorder(root.left)
+            self.preorder(root.right)
+
+    # Postorder Traversal
+    def postorder(self, root):
+        if root is not None:
+            self.postorder(root.left)
+            self.postorder(root.right)
+            print(root.data, end=" ")
+
+
+# Main program
+bst = BST()
+root = None
+
+values = [50, 30, 70, 20, 40, 60, 80]
+
+for value in values:
+    root = bst.insert(root, value)
+
+print("Inorder Traversal:")
+bst.inorder(root)
+
+print("\nPreorder Traversal:")
+bst.preorder(root)
+
+print("\nPostorder Traversal:")
+bst.postorder(root)
+
+# Delete a node
+value = int(input("\n\nEnter value to delete: "))
+
+root = bst.delete(root, value)
+
+print("\nInorder Traversal after deletion:")
+bst.inorder(root)
